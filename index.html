@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AREWESTILLFRIENDS??</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <header>
+        <h1 id="nowPlaying">hello</h1>
+    </header>
+
+    <main>
+        <section class="playlist">
+            <h2>Created... by... ultraskibidiradiation</h2>
+            <div id="trackList"></div>
+            <div class="controls">
+                <button id="playAllButton">Play</button>
+                <button id="skipButton">Next (Song)</button>
+                <button id="rewindButton">Last (Song)</button>
+                <label for="volumeControl">Volume:</label>
+                <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
+            </div>
+            <div id="progressContainer">
+                <input type="range" id="progressBar" value="0" step="1" min="0">
+                <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+            </div>
+            <div id="customization">
+                <h3>Customize Artist and Album Art</h3>
+                <label for="artistInput">Artist:</label>
+                <input type="text" id="artistInput" placeholder="Shian Adriel">
+                <label for="albumArtInput">Album Art URL:</label>
+                <input type="text" id="albumArtInput" placeholder="Default album art URL">
+                <button id="applyCustomization">Apply</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 10100x020032130912x010101010101</p>
+    </footer>
+
+    <audio id="audioPlayer" controls preload="auto"></audio>
+
+    <script>
+        const audioPlayer = document.getElementById('audioPlayer');
+        const trackListElement = document.getElementById('trackList');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const durationDisplay = document.getElementById('duration');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const artistInput = document.getElementById('artistInput');
+        const albumArtInput = document.getElementById('albumArtInput');
+        const applyCustomization = document.getElementById('applyCustomization');
+        const volumeControl = document.getElementById('volumeControl');
+
+        const trackList = [
+            { file: 'DieWithASmile.mp3', displayName: 'Die With A Smile' },
+            { file: 'Lover.mp3', displayName: 'Lover' },
+            { file: 'Cardigan.mp3', displayName: 'Cardigan' },
+            { file: 'CruelSummer.mp3', displayName: 'Cruel Summer' },
+            { file: 'BIRDSOFAFEATHER.mp3', displayName: 'Birds of a Feather' },
+            { file: 'SailorSong.mp3', displayName: 'Sailor Song' },
+            { file: 'her.mp3', displayName: 'Sailo- I mean her!' },
+            { file: 'GlueSong.mp3', displayName: 'Glue Song' },
+            { file: 'CryingSeason.mp3', displayName: 'Crying Season' },
+            { file: 'MoonlitFloor.mp3', displayName: 'Moonlit Floor' },
+            { file: 'bloodline.mp3', displayName: 'bloodline' },
+            { file: 'RealMan.mp3', displayName: 'Real Man' },
+            { file: 'TakeMeHome.mp3', displayName: 'Take Me Home' },
+            { file: 'Nonsense.mp3', displayName: 'Nonsense' },
+            { file: 'Espresso.mp3', displayName: 'Espresso' },
+            { file: 'BedChem.mp3', displayName: 'Bed Chem' },
+            { file: 'PleasePleasePlease.mp3', displayName: 'Please, Please, Please' },
+            { file: 'AREWESTILLFRIENDS.mp3', displayName: 'ARE WE STILL FRIENDS?' },
+            { file: 'AgainAndAgain.mp3', displayName: 'Again and Again' },
+            { file: 'SeeYouAgain.mp3', displayName: 'See You Again' },
+            { file: 'NoticedILaughed.mp3', displayName: 'Noticed I Laughed' },
+            { file: 'Everyday.mp3', displayName: 'Everyday' },
+            { file: 'APT.mp3', displayName: 'APT' },
+            // ALBUM #1 - Bury Me At Makeout Creek
+            { file: 'CarryMeOut.mp3', displayName: 'Carry Me Out' },
+            { file: 'DrunkWalkHome.mp3', displayName: 'Drunk Walk Home' },
+            { file: 'FrancisForever.mp3', displayName: 'Francis Forever' },
+            { file: 'IDontSmoke.mp3', displayName: "I Don't Smoke" },
+            { file: 'IWill.mp3', displayName: 'I Will' },
+            { file: 'JoblessMonday.mp3', displayName: 'Jobless Monday' },
+            { file: 'LastWordsofaShootingStar.mp3', displayName: 'Last Words of a Shooting Star' },
+            { file: 'LateSpring.mp3', displayName: 'Late Spring' },
+            { file: 'TexasReznikoff.mp3', displayName: 'Texas Reznikoff' },
+            { file: 'Townie.mp3', displayName: 'Townie' },
+            // END OF ALBUM #1  
+            { file: 'theboyismine.mp3', displayName: 'The Boy is Mine' },
+            { file: 'YouBelongWithMe.mp3', displayName: 'You Belong With Me' },
+            { file: 'ANightToRemember.mp3', displayName: 'A Night to Remember' },
+            { file: 'YoureHereThatsTheThing.mp3', displayName: 'You’re Here, That’s The Thing' },
+            { file: 'theperfectpair.mp3', displayName: 'The Perfect Pair' }
+        ];
+
+        let currentTrackIndex = 0;
+        let customArtist = "Shian Adriel U.";
+        let customAlbumArt = "https://scontent.fmnl9-2.fna.fbcdn.net/v/t39.30808-6/330339196_111254765249957_3868741153041822997_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeFbjqi5w7IuTZuOFgH3L2q3VGkziLzD3WlUaTOIvMPdaXnuXT_H5go13VGmeBV8buIphrdDnQyKG3QVcQKUgK6H&_nc_ohc=0IsG-Z3FhxYQ7kNvgHhkblR&_nc_zt=23&_nc_ht=scontent.fmnl9-2.fna&_nc_gid=AKYbxxbRBGzsfleBCzM4LSo&oh=00_AYCyA1kT_yUxo2JCKiwRLUpUOPHgX9C-FtmBIAgKe0w6nA&oe=67274748";  // Default album art URL
+
+        function createTrackElements() {
+            trackList.forEach(song => {
+                const trackDiv = document.createElement('div'); 
+                trackDiv.classList.add('track');
+                trackDiv.innerHTML = `<span class="track-name">${song.displayName}</span>`;
+                trackListElement.appendChild(trackDiv);
+            });
+        }
+
+        function updateProgressBar() {
+            const { currentTime, duration } = audioPlayer;
+            progressBar.max = duration || 0;
+            progressBar.value = currentTime;
+            currentTimeDisplay.textContent = formatTime(currentTime);
+            durationDisplay.textContent = formatTime(duration);
+            nowPlaying.textContent = trackList[currentTrackIndex].displayName;
+
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: trackList[currentTrackIndex].displayName,
+                    artist: customArtist,
+                    album: '10100x020032130912x010101010101',
+                    artwork: [{ src: customAlbumArt, sizes: '512x512', type: 'image/png' }]
+                });
+            }
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+        }
+
+        function playTrack(index) {
+            if (index < trackList.length) {
+                audioPlayer.src = `../Songs/${trackList[index].file}`;
+                audioPlayer.play()
+                    .then(() => {
+                        console.log(`Playing: ${trackList[index].displayName}`);
+                    })
+                    .catch(error => {
+                        console.error('Error playing the track:', error);
+                    });
+            }
+        }
+
+        function playAllTracks() {
+            playTrack(currentTrackIndex);
+            audioPlayer.addEventListener('ended', () => {
+                currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+                playTrack(currentTrackIndex);
+            });
+        }
+
+        document.getElementById('playAllButton').addEventListener('click', playAllTracks);
+        document.getElementById('skipButton').addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+            playTrack(currentTrackIndex);
+        });
+
+        document.getElementById('rewindButton').addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + trackList.length) % trackList.length;
+            playTrack(currentTrackIndex);
+        });
+
+        audioPlayer.addEventListener('timeupdate', updateProgressBar);
+        audioPlayer.addEventListener('loadedmetadata', updateProgressBar);
+        audioPlayer.addEventListener('ended', updateProgressBar);
+
+        applyCustomization.addEventListener('click', () => {
+            customArtist = artistInput.value || customArtist;
+            customAlbumArt = albumArtInput.value || customAlbumArt;
+            alert('Customization applied!');
+        });
+
+        volumeControl.addEventListener('input', () => {
+            audioPlayer.volume = volumeControl.value;
+        });
+
+        createTrackElements();
+    </script>
+</body>
+</html>
